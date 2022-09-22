@@ -142,7 +142,7 @@ prompt_git() {
     if [[ -n $(git status -s --ignore-submodules=dirty 2> /dev/null) ]]; then
       left_prompt_segment 043 black
     else
-      left_prompt_segment 085 black
+      left_prompt_segment 119 black
     fi
 
     if [[ -e "${repo_path}/BISECT_LOG" ]]; then
