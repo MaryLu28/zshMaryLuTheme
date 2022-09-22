@@ -2,6 +2,7 @@ source ~/.oh-my-zsh/custom/themes/maryluTheme/zsh-git-prompt/zshrc.sh
 
 # Icons
 FA_I_HOME="\uf015"
+FA_I_FOLDER="\uf07c"
 
 FA_I_GIT_BRANCH="\uf126"
 FA_I_UNSTAGED="\uf06a" #exclamation-circle
@@ -153,7 +154,7 @@ prompt_git() {
 
 # Dir: current working directory
 prompt_dir() {
-  left_prompt_segment 199 black '%2~'
+  left_prompt_segment 199 black "$FA_I_FOLDER %2~"
 }
 
 # Status:
