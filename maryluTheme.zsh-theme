@@ -133,16 +133,10 @@ prompt_git() {
     dirty=$(parse_git_dirty)
     ref=$(git symbolic-ref HEAD 2> /dev/null) || ref="➦ $(git rev-parse --short HEAD 2> /dev/null)"
 
-    # if [[ -n $dirty ]]; then
-    #   left_prompt_segment 043 black
-    # else
-    #   left_prompt_segment 085 black
-    # fi
-
     if [[ -n $(git status -s --ignore-submodules=dirty 2> /dev/null) ]]; then
       left_prompt_segment 043 black
     else
-      left_prompt_segment 119 black
+      left_prompt_segment 082 black
     fi
 
     if [[ -e "${repo_path}/BISECT_LOG" ]]; then
