@@ -1,0 +1,2 @@
+# zshMaryLuTheme
+Custom zsh theme
