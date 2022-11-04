@@ -1,0 +1,9 @@
+git-prompt/.stack-work
+git-prompt/stack.yaml.lock
+
+
+git-prompt/src/.bin
+git-prompt/src/.stack-work
+
+
+*.DS_Store
