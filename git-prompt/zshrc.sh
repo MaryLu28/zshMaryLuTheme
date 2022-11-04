@@ -83,7 +83,7 @@ git_super_status() {
         STATUS+=" $ZSH_THEME_GIT_PROMPT_CHANGED $GIT_CHANGED"
       fi
       if [ "$GIT_UNTRACKED" -ne "0" ]; then
-        STATUS+=" $ZSH_THEME_GIT_PROMPT_UNTRACKED"
+        STATUS+=" $ZSH_THEME_GIT_PROMPT_UNTRACKED$GIT_UNTRACKED"
       fi
       if [ "$GIT_STASHED" -ne "0" ]; then
         STATUS+=" $ZSH_THEME_GIT_PROMPT_STASHED $GIT_STASHED"
