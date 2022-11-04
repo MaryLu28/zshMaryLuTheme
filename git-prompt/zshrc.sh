@@ -58,6 +58,7 @@ function update_current_git_vars() {
   GIT_CONFLICTS=$__CURRENT_GIT_STATUS[5]
   GIT_CHANGED=$__CURRENT_GIT_STATUS[6]
   GIT_UNTRACKED=$__CURRENT_GIT_STATUS[7]
+  GIT_STASHED=$__CURRENT_GIT_STATUS[8]
 }
 
 
@@ -66,26 +67,26 @@ git_super_status() {
   if [ -n "$__CURRENT_GIT_STATUS" ]; then
     STATUS=""
       if [ "$GIT_BEHIND" -ne "0" ]; then
-        STATUS+="$ZSH_THEME_GIT_PROMPT_BEHIND $GIT_BEHIND"
+        STATUS+=" $ZSH_THEME_GIT_PROMPT_BEHIND$GIT_BEHIND"
       fi
       if [ "$GIT_AHEAD" -ne "0" ]; then
-        STATUS+="$ZSH_THEME_GIT_PROMPT_AHEAD $GIT_AHEAD"
+        STATUS+=" $ZSH_THEME_GIT_PROMPT_AHEAD$GIT_AHEAD"
       fi
     STATUS+="$ZSH_THEME_GIT_PROMPT_SEPARATOR"
       if [ "$GIT_STAGED" -ne "0" ]; then
-        STATUS+="$ZSH_THEME_GIT_PROMPT_STAGED $GIT_STAGED"
+        STATUS+=" $ZSH_THEME_GIT_PROMPT_STAGED $GIT_STAGED"
       fi
       if [ "$GIT_CONFLICTS" -ne "0" ]; then
-        STATUS+="$ZSH_THEME_GIT_PROMPT_CONFLICTS $GIT_CONFLICTS"
+        STATUS+=" $ZSH_THEME_GIT_PROMPT_CONFLICTS $GIT_CONFLICTS"
       fi
       if [ "$GIT_CHANGED" -ne "0" ]; then
-        STATUS+="$ZSH_THEME_GIT_PROMPT_CHANGED $GIT_CHANGED"
+        STATUS+=" $ZSH_THEME_GIT_PROMPT_CHANGED $GIT_CHANGED"
       fi
       if [ "$GIT_UNTRACKED" -ne "0" ]; then
-        STATUS+="$ZSH_THEME_GIT_PROMPT_UNTRACKED"
+        STATUS+=" $ZSH_THEME_GIT_PROMPT_UNTRACKED"
       fi
-      if [ "$GIT_CHANGED" -eq "0" ] && [ "$GIT_CONFLICTS" -eq "0" ] && [ "$GIT_STAGED" -eq "0" ] && [ "$GIT_UNTRACKED" -eq "0" ]; then
-        # STATUS="$STATUS"
+      if [ "$GIT_STASHED" -ne "0" ]; then
+        STATUS+=" $ZSH_THEME_GIT_PROMPT_STASHED$GIT_STASHED"
       fi
     echo "$STATUS"
   fi
