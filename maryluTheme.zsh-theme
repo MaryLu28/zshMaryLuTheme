@@ -1,6 +1,6 @@
 source ~/.oh-my-zsh/custom/themes/zshMaryLuTheme/git-prompt/zshrc.sh
 # source ~/zsh-git-prompt/zshrc.sh
-GIT_PROMPT_EXECUTABLE='haskell'
+# GIT_PROMPT_EXECUTABLE='haskell'
 
 # Icons
 FA_I_HOME="\uf015"
