@@ -58,14 +58,14 @@ function update_current_git_vars() {
   GIT_CONFLICTS=$__CURRENT_GIT_STATUS[5]
   GIT_CHANGED=$__CURRENT_GIT_STATUS[6]
   GIT_UNTRACKED=$__CURRENT_GIT_STATUS[7]
-  GIT_STASHED=$(git rev-list --walk-reflogs --count refs/stash)
+  GIT_STASHED=$(git stash list | wc -l)
 }
 
 
 git_super_status() {
   precmd_update_git_vars
   if [ -n "$__CURRENT_GIT_STATUS" ]; then
-    STATUS=" "
+    STATUS=""
       if [ "$GIT_BEHIND" -ne "0" ]; then
         STATUS+=" $ZSH_THEME_GIT_PROMPT_BEHIND$GIT_BEHIND"
       fi
