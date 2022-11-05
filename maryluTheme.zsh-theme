@@ -136,9 +136,11 @@ prompt_git() {
     ref=$(git symbolic-ref HEAD 2> /dev/null) || ref="➦ $(git rev-parse --short HEAD 2> /dev/null)"
 
     if [[ -n $(git status -s --ignore-submodules=dirty 2> /dev/null) ]]; then
-      left_prompt_segment 043 black
+      # dirty
+      left_prompt_segment 069 black
     else
-      left_prompt_segment 082 black
+      # clean
+      left_prompt_segment 099 black
     fi
 
     if [[ -e "${repo_path}/BISECT_LOG" ]]; then
@@ -178,9 +180,9 @@ current_time() {
   right_prompt_segment 044 black " $FA_I_CLOCK %D{%I:%M %p}"
 }
 
-# current time
+# current date
 current_date() {
-  right_prompt_segment 063 black " $FA_I_CALENDAR %D{%d/%m/%y} "
+  right_prompt_segment 171 black " $FA_I_CALENDAR %D{%d/%m/%y} "
 }
 
 left_build_prompt() {
