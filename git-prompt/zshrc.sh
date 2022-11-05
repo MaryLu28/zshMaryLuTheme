@@ -58,7 +58,10 @@ function update_current_git_vars() {
   GIT_CONFLICTS=$__CURRENT_GIT_STATUS[5]
   GIT_CHANGED=$__CURRENT_GIT_STATUS[6]
   GIT_UNTRACKED=$__CURRENT_GIT_STATUS[7]
-  GIT_STASHED=$(git stash list | wc -l)
+  GIT_STASHED="0"
+  if [ -d .git ]; then
+    GIT_STASHED=$(git stash list | wc -l)
+  fi
 }
 
 
