@@ -134,6 +134,11 @@ prompt_git() {
     repo_path=$(git rev-parse --git-dir 2>/dev/null)
     dirty=$(parse_git_dirty)
     ref=$(git symbolic-ref HEAD 2> /dev/null) || ref="➦ $(git rev-parse --short HEAD 2> /dev/null)"
+    local branch_name
+    branch_name="${ref/refs\/heads\//}"
+    if (( ${#branch_name} > 25 )); then
+      branch_name="${branch_name[1,25]}"
+    fi
 
     if [[ -n $(git status -s --ignore-submodules=dirty 2> /dev/null) ]]; then
       # dirty
@@ -152,7 +157,7 @@ prompt_git() {
     fi
 
     # echo -n "$FA_I_GIT_BRANCH ${ref/refs\/heads\//} $dirty${mode}"$(git_prompt_status)
-    echo -n "$FA_I_GIT_BRANCH ${ref/refs\/heads\//}$dirty${mode}"$(git_super_status)
+    echo -n "$FA_I_GIT_BRANCH $branch_name$dirty${mode}"$(git_super_status)
   fi
 }
 
