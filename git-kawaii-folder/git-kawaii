@@ -179,13 +179,8 @@ do_commit_pretty() {
     # After a successful commit, show one-line + stat for HEAD
     local stat
     stat="$(git -c color.ui=always show --stat --pretty=format:'%C(bold)%h%Creset %s %C(dim)(%cr)%Creset%n' -1)"
-    if has lolcat; then
-      printf "✨ Commit created successfully ✨\n\n%s\n" "$stat" \
-        | boxes -d ansi -s "$width" | lolcat
-    else
-      printf "✨ Commit created successfully ✨\n\n%s\n" "$stat" \
-        | boxes -d ansi -s "$width"
-    fi
+    printf "✨ Commit created successfully ✨\n\n%s\n" "$stat" \
+      | boxes -d ansi -s "$width"
   else
     # Print the original commit output (errors, hooks, etc.)
     printf "%s\n" "$out"
@@ -230,13 +225,8 @@ do_commit_m() {
     # After a successful commit, show one-line + stat for HEAD
     local stat
     stat="$(git -c color.ui=always show --stat --pretty=format:'%C(bold)%h%Creset %s %C(dim)(%cr)%Creset%n' -1)"
-    if has lolcat; then
-      printf "✨ Commit created successfully ✨\n\n%s\n" "$stat" \
-        | boxes -d ansi -s "$width" | lolcat
-    else
-      printf "✨ Commit created successfully ✨\n\n%s\n" "$stat" \
-        | boxes -d ansi -s "$width"
-    fi
+    printf "✨ Commit created successfully ✨\n\n%s\n" "$stat" \
+      | boxes -d ansi -s "$width"
   else
     # Print the original commit output (errors, hooks, etc.)
     printf "%s\n" "$out"
@@ -330,7 +320,7 @@ case "$cmd" in
   rebase|rb)     do_rebase "$@" ;;
 
   # pretty push for 'push' or git aliases 'p' and 'ps'
-  push|p|ps)     do_push "$@" ;;
+  push|ps)     do_push "$@" ;;
 
   commit)        do_commit_pretty "$@" ;;
   cm)            do_commit_m "$@" ;;
