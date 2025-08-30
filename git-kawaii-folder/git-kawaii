@@ -244,26 +244,36 @@ do_commit_m() {
   return "$rc"
 }
 
-# Pretty branches: current branch highlighted
+# Pretty branches: current branch rainbow (lolcat), others plain (Bash-safe)
 do_branches() {
   has git || { echo "git-kawaii: git not found" >&2; exit 127; }
   has boxes || { echo "git-kawaii: boxes not found" >&2; exit 127; }
   local width; width="$(box_width)"
 
-  local branches out
-  out="$(git for-each-ref --format='%(refname:short)' refs/heads/ 2>/dev/null)" || return 1
-  [[ -z "$out" ]] && { echo "No branches found."; return 0; }
+  # Get branches without git's own colors (we'll colorize ourselves)
+  local branches; branches="$(git branch --color=never 2>/dev/null)" || return 1
+  [[ -z "$branches" ]] && { echo "No branches found." | boxes -d ansi -s "$width"; return 0; }
 
-  local current; current="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
-  local lines=()
-  while IFS= read -r br; do
-    if [[ "$br" == "$current" ]]; then
-      lines+=("👉 \033[35m$br (current)\033[0m")
+  # Build output lines (Bash arrays; no negative indices)
+  local -a lines=()
+  local line current rainbow_line
+  while IFS= read -r line; do
+    if [[ "$line" == \** ]]; then
+      # Current branch: strip "* " and prefix 👉
+      current="${line#* }"
+      if has lolcat; then
+        rainbow_line="$(printf '👉 %s\n' "$current" | lolcat -f)"
+        lines+=("$rainbow_line")
+      else
+        lines+=("👉 $current")
+      fi
     else
-      lines+=("   $br")
+      # Other branches: keep plain, trim the first leading space
+      lines+=("   ${line# }")
     fi
-  done <<<"$out"
+  done <<<"$branches"
 
+  # Print boxed list (boxes preserves ANSI from lolcat)
   printf "%s\n" "${lines[@]}" | boxes -d ansi -s "$width"
 }
 
