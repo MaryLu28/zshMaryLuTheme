@@ -49,27 +49,22 @@ alias cl='clear'   # clear screen
 
 # 👉 LSD: modern, colorful replacement for ls
 if command -v lsd &> /dev/null; then
-  alias l='lsd -A --group-dirs=first --icon=always'    # simple list
-  alias ll='lsd -lhA --group-dirs=first --icon=always' # detailed list
-  alias la='lsd -lha --group-dirs=first --icon=always' # show all files
-  alias lt='lsd --tree --icon=always'                  # tree view
-  alias lbox='lsd -A --group-dirs=first --icon=always | boxes -d ansi | lolcat'
-  alias llbox='lsd -lhA --group-dirs=first --icon=always --color=always | boxes -d ansi'
-  alias labox='lsd -lha --group-dirs=first --icon=always --color=always | boxes -d ansi'
-  alias ltbox='lsd --tree --icon=always --color=always | boxes -d ansi'
+  alias l='lsd --group-dirs=first --icon=always' # simple list
+  alias la='l -a' # show all files
+  alias ll='l -l' # show all files with details
+  alias lt='lsd --tree --icon=always' # tree view
+
+  alias lbox='l | boxes -d ansi | lolcat'
+  alias llbox='ll | boxes -d ansi'
+  alias labox='la | boxes -d ansi'
+  alias ltbox='lt | boxes -d ansi'
 else
   # Fallback to classic ls (if lsd is not installed)
-  alias l='ls -A'
-  alias ll='ls -lhA'
-  alias la='ls -lha'
+  alias l='ls -a'
+  alias ll='ls -l'
+  alias la='ls -la'
   alias lt='ls -R'
 fi
-
-# Ensure git-kawaii is on PATH (ruta de tu theme)
-export PATH="$HOME/.oh-my-zsh/custom/themes/${ZSH_THEME_PATH}:$PATH"
-
-# Git kawaii alias
-alias g="git-kawaii"
 
 # ==============================================================================
 # 📦 Boxes + 🌈 Lolcat (kawaii pack)
@@ -78,12 +73,9 @@ alias g="git-kawaii"
 # echo with whirly box (funky borders 🌪)
 alias boxwhirl='boxes -d whirly | lolcat'
 
-# echo with shell-style box (looks like code comments 💻)
-alias boxshell='boxes -d shell | lolcat'
-
 # generic function to boxify any command output
 boxify() {
-  "$@" 2>&1 | boxes -d peek | lolcat
+  "$@" 2>&1 | boxes -d ansi | lolcat
 }
 
 # ==============================================================================
