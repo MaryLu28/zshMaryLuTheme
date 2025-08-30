@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+# git-kawaii: drop-in wrapper for Git (boxes + optional lolcat)
+# - Recognized commands:
+#     kawaii-status, kawaii-merge, kawaii-rebase
+# - Any other subcommand → forwarded to real `git`
+set -euo pipefail
+
+has() { command -v "$1" >/dev/null 2>&1; }
+box_width() { printf '%s' "${1:-${COLUMNS:-80}}"; }
+
+print_box() {
+  # print_box <color> <title> <minWidth> -- <lines...>
+  local color="$1" title="$2" width; width="$(box_width "$3")"
+  shift 3
+  while [[ "${1:-}" != "--" && "$#" -gt 0 ]]; do shift; done
+  shift || true
+  local body=""
+  if [[ "$#" -gt 0 ]]; then body=$(printf '• %s\n' "$@"); else body="(empty)"; fi
+
+  local code=""
+  case "$color" in
+    red) code="31" ;; green) code="32" ;; yellow) code="33" ;; cyan) code="36" ;;
+    *) code="" ;;
+  esac
+
+  if [[ -n "$code" ]]; then
+    { printf "\033[1m%s\033[0m\n%s\n" "$title" "$body"; } \
+      | boxes -d ansi -s "$width" \
+      | sed $'s/^/\x1b['"$code"$'m/; s/$/\x1b[0m/'
+  else
+    { printf "%s\n%s\n" "$title" "$body"; } | boxes -d ansi -s "$width"
+  fi
+}
+
+do_merge() {
+  has git || { echo "git-kawaii: git not found" >&2; exit 127; }
+  has boxes || { echo "git-kawaii: boxes not found" >&2; exit 127; }
+  local width out rc; width="$(box_width)"
+  out="$(git -c color.ui=always merge "$@" 2>&1)" || rc=$? || true
+  rc=${rc:-0}
+
+  if [[ $rc -eq 0 ]]; then
+    if has lolcat; then
+      printf "%s\n" "$out" | boxes -d whirly -s "$width" | lolcat
+      printf "🌈 Merge successful — no conflicts! 🎉\n" | boxes -d whirly | lolcat
+    else
+      printf "%s\n" "$out" | boxes -d whirly -s "$width"
+      printf "🌈 Merge successful — no conflicts! 🎉\n" | boxes -d whirly
+    fi
+  else
+    if grep -qi 'conflict' <<<"$out"; then
+      printf "%s\n" "$out" \
+        | sed $'s/^/\x1b[31m/; s/$/\x1b[0m/' | boxes -d ansi -s "$width"
+    else
+      printf "%s\n" "$out"
+    fi
+  fi
+  return "$rc"
+}
+
+do_rebase() {
+  has git || { echo "git-kawaii: git not found" >&2; exit 127; }
+  has boxes || { echo "git-kawaii: boxes not found" >&2; exit 127; }
+  local width out rc; width="$(box_width)"
+  out="$(git -c color.ui=always rebase "$@" 2>&1)" || rc=$? || true
+  rc=${rc:-0}
+
+  if [[ $rc -eq 0 ]]; then
+    if has lolcat; then
+      printf "%s\n" "$out" | boxes -d whirly -s "$width" | lolcat
+      printf "🌈 Rebase successful — no conflicts! 🎉\n" | boxes -d whirly | lolcat
+    else
+      printf "%s\n" "$out" | boxes -d whirly -s "$width"
+      printf "🌈 Rebase successful — no conflicts! 🎉\n" | boxes -d whirly
+    fi
+  else
+    if grep -qi -e 'conflict' -e 'could not apply' <<<"$out"; then
+      printf "%s\n" "$out" \
+        | sed $'s/^/\x1b[31m/; s/$/\x1b[0m/' | boxes -d ansi -s "$width"
+    else
+      printf "%s\n" "$out"
+    fi
+  fi
+  return "$rc"
+}
+
+do_status_pretty() {
+  has git || { echo "git-kawaii: git not found" >&2; exit 127; }
+  has boxes || { echo "git-kawaii: boxes not found" >&2; exit 127; }
+  git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
+    echo "Not a git repository." >&2; exit 128; }
+
+  local width; width="$(box_width)"
+  local staged=() unstaged=() untracked=() conflicts=()
+  local line x y path
+
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    if [[ "$line" == \?\?* ]]; then
+      untracked+=("${line#\?\? }"); continue
+    fi
+    x="${line:0:1}"; y="${line:1:1}"; path="${line:3}"
+    if [[ "$x$y" == *U* || ( "$x" = A && "$y" = A ) || ( "$x" = D && "$y" = D ) ]]; then
+      conflicts+=("$path"); continue
+    fi
+    [[ "$x" != " " ]] && staged+=("$path")
+    [[ "$y" != " " ]] && unstaged+=("$path")
+  done < <(git status --porcelain=v1)
+
+  ((${#staged[@]}))    && print_box green  "✅ Staged changes"    "$width" -- "${staged[@]}"
+  ((${#unstaged[@]}))  && print_box yellow "✏️  Unstaged changes" "$width" -- "${unstaged[@]}"
+  ((${#untracked[@]})) && print_box cyan   "🆕 Untracked files"    "$width" -- "${untracked[@]}"
+
+  if ((${#conflicts[@]})); then
+    print_box red "🛑 Conflicts detected" "$width" -- "${conflicts[@]}"
+    printf "Hint: resolve files above, then 'git add <file>' and continue.\n" \
+      | sed $'s/^/\x1b[31m/; s/$/\x1b[0m/' | boxes -d ansi
+    return 1
+  fi
+
+  if ! ((${#staged[@]} + ${#unstaged[@]} + ${#untracked[@]} + ${#conflicts[@]})); then
+    printf "Working tree clean ✨\n" | boxes -d ansi
+  fi
+}
+
+usage() {
+  cat <<'EOF'
+git-kawaii (drop-in):
+  git-kawaii kawaii-status
+  git-kawaii kawaii-merge <args>
+  git-kawaii kawaii-rebase <args>
+  git-kawaii <ANY GIT CMD>  # forwarded to git
+EOF
+}
+
+cmd="${1:-}"; shift || true
+case "$cmd" in
+  # explicit kawaii commands
+  kawaii-status) do_status_pretty "$@" ;;
+  kawaii-merge)  do_merge "$@" ;;
+  kawaii-rebase) do_rebase "$@" ;;
+
+  # treat plain 'status' and your git alias 's' as kawaii status ✨
+  status|s)      do_status_pretty "$@" ;;
+
+  # help
+  ""|-h|--help|help)
+    usage ;;
+
+  # everything else → behave exactly like git (aliases from .gitconfig work)
+  *)
+    exec git "$cmd" "$@" ;;
+esac

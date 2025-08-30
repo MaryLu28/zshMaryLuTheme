@@ -34,7 +34,6 @@ plugins=(
   web-search
   zsh-autosuggestions
   git-prompt
-  zsh-history-substring-search
   zsh-syntax-highlighting
 )
 
@@ -45,12 +44,19 @@ source $ZSH/oh-my-zsh.sh
 # 📂 Aliases
 # ==============================================================================
 
+# General aliases
+alias cl='clear'   # clear screen
+
 # 👉 LSD: modern, colorful replacement for ls
 if command -v lsd &> /dev/null; then
   alias l='lsd -A --group-dirs=first --icon=always'    # simple list
   alias ll='lsd -lhA --group-dirs=first --icon=always' # detailed list
   alias la='lsd -lha --group-dirs=first --icon=always' # show all files
   alias lt='lsd --tree --icon=always'                  # tree view
+  alias lbox='lsd -A --group-dirs=first --icon=always | boxes -d ansi | lolcat'
+  alias llbox='lsd -lhA --group-dirs=first --icon=always --color=always | boxes -d ansi'
+  alias labox='lsd -lha --group-dirs=first --icon=always --color=always | boxes -d ansi'
+  alias ltbox='lsd --tree --icon=always --color=always | boxes -d ansi'
 else
   # Fallback to classic ls (if lsd is not installed)
   alias l='ls -A'
@@ -59,18 +65,26 @@ else
   alias lt='ls -R'
 fi
 
-# General aliases
-alias cl='clear'   # clear screen
+# Ensure git-kawaii is on PATH (ruta de tu theme)
+export PATH="$HOME/.oh-my-zsh/custom/themes/${ZSH_THEME_PATH}:$PATH"
 
-# 🌈 Rainbow aliases (require figlet + lolcat installed)
-alias rainbowls="ls -la | lolcat"
-alias rainbowecho="echo '✨ Keep shining, dev girly ✨' | lolcat"
-alias rainbowfig="figlet '${ZSH_USER_NAME}' | lolcat"
-alias motd='echo \"💖🌸 Welcome back, ${ZSH_USER_NAME} 🌈💅\" | lolcat'
-alias rainbowlogs="tail -f /var/log/syslog | lolcat"
-alias rainbowtest="npm test | lolcat"
-alias rainbowgit="git status | lolcat"
+# Git kawaii alias
+alias g="git-kawaii"
 
+# ==============================================================================
+# 📦 Boxes + 🌈 Lolcat (kawaii pack)
+# ==============================================================================
+
+# echo with whirly box (funky borders 🌪)
+alias boxwhirl='boxes -d whirly | lolcat'
+
+# echo with shell-style box (looks like code comments 💻)
+alias boxshell='boxes -d shell | lolcat'
+
+# generic function to boxify any command output
+boxify() {
+  "$@" 2>&1 | boxes -d peek | lolcat
+}
 
 # ==============================================================================
 # 🎨 Powerlevel10k (if you use this theme)
@@ -180,7 +194,7 @@ kawaii() {
 }
 
 # Run kawaii function on startup - MUST BE THE LAST THING
-kawaii
+kawaii | boxwhirl
 
 # ==============================================================================
 # 🎨 HOW TO CUSTOMIZE THIS CONFIGURATION 🎨
