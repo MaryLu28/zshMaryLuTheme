@@ -1,76 +1,25 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+# ==============================================================================
+# 🐚 Zsh / Oh My Zsh Base Configuration
+# ==============================================================================
 
-# Path to your Oh My Zsh installation.
+# ==============================================================================
+# 🎨 PERSONALIZATION VARIABLES - CUSTOMIZE THESE FOR YOURSELF! 🎨
+# ==============================================================================
+
+# Your personal information - CHANGE THESE!
+export ZSH_USER_NAME="MaryLu"                    # Your name (used in banners and messages)
+export ZSH_USERNAME="mlourdesgarcia"              # Your system username
+export ZSH_THEME_PATH="zshMaryLuTheme"           # Your custom theme folder name
+export ZSH_THEME_NAME="maryluTheme"               # Your theme file name
+
+# Path to your Oh My Zsh installation
 export ZSH="$HOME/.oh-my-zsh"
 
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time Oh My Zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-# ZSH_THEME="robbyrussell"
-ZSH_THEME="zshMaryLuTheme/maryluTheme"
+# Theme (custom theme in $ZSH_CUSTOM/themes/)
+ZSH_THEME="${ZSH_THEME_PATH}/${ZSH_THEME_NAME}"
 
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in $ZSH/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
-
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
-
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
-
-# Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
-
-# Uncomment the following line to change how often to auto-update (in days).
-# zstyle ':omz:update' frequency 13
-
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS="true"
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# You can also set it to another string to have that shown instead of the default red dots.
-# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
-# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load?
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
+# Plugins to load with Oh My Zsh
+# ⚠️ Note: "zsh-syntax-highlighting" must be the last one to avoid glitches
 plugins=(
   command-not-found
   git
@@ -84,83 +33,58 @@ plugins=(
   vscode
   web-search
   zsh-autosuggestions
-  zsh-syntax-highlighting
   git-prompt
+  zsh-syntax-highlighting
 )
 
+# Load Oh My Zsh and plugins
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='nvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch $(uname -m)"
-
-# Set personal aliases, overriding those provided by Oh My Zsh libs,
-# plugins, and themes. Aliases can be placed here, though Oh My Zsh
-# users are encouraged to define aliases within a top-level file in
-# the $ZSH_CUSTOM folder, with .zsh extension. Examples:
-# - $ZSH_CUSTOM/aliases.zsh
-# - $ZSH_CUSTOM/macos.zsh
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
 
 # ==============================================================================
-# Alias
+# 📂 Aliases
 # ==============================================================================
 
-alias l='colorls --group-directories-first --almost-all'
-alias ll='colorls --group-directories-first --almost-all --long'
-alias lc='colorls -lA --sd'
+# 👉 LSD: modern, colorful replacement for ls
+if command -v lsd &> /dev/null; then
+  alias l='lsd -A --group-dirs=first --icon=always'    # simple list
+  alias ll='lsd -lhA --group-dirs=first --icon=always' # detailed list
+  alias la='lsd -lha --group-dirs=first --icon=always' # show all files
+  alias lt='lsd --tree --icon=always'                  # tree view
+else
+  # Fallback to classic ls (if lsd is not installed)
+  alias l='ls -A'
+  alias ll='ls -lhA'
+  alias la='ls -lha'
+  alias lt='ls -R'
+fi
 
-alias cl='clear'
+# General aliases
+alias cl='clear'   # clear screen
 
-# 🌈 Rainbow aliases 🌈
-
-# ls arcoiris
+# 🌈 Rainbow aliases (require figlet + lolcat installed)
 alias rainbowls="ls -la | lolcat"
-
-# echo arcoiris (mensaje rápido cute)
-alias rainbowecho="echo '✨ Sigue brillando, dev girly ✨' | lolcat"
-
-# banner con tu nombre en ASCII + rainbow
-alias rainbowfig="figlet 'MaryLu' | lolcat"
-
-# motd arcoiris (ideal para ponerlo al inicio de la terminal)
-alias motd='echo "💖🌸 Welcome back, MaryLu 🌈💅" | lolcat'
-
-# seguir logs en rainbow
+alias rainbowecho="echo '✨ Keep shining, dev girly ✨' | lolcat"
+alias rainbowfig="figlet '${ZSH_USER_NAME}' | lolcat"
+alias motd='echo \"💖🌸 Welcome back, ${ZSH_USER_NAME} 🌈💅\" | lolcat'
 alias rainbowlogs="tail -f /var/log/syslog | lolcat"
-
-# tests en rainbow
 alias rainbowtest="npm test | lolcat"
-
-# git status en rainbow (extra cute)
 alias rainbowgit="git status | lolcat"
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+
+
+# ==============================================================================
+# 🎨 Powerlevel10k (if you use this theme)
+# ==============================================================================
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
 
 # ==============================================================================
 # 🌸 Kawaii Dev Mode 🌸
 # ==============================================================================
-kawaii() {
-  # Banner con tu nombre en ASCII rainbow
-  figlet "MaryLu" | lolcat
 
+# Function that runs automatically when opening the terminal
+kawaii() {
+  # Cute random separators
   separators=(
     "✦✦✦✦✦✦✦✦✦✦✦✦✦✦"
     "✿❀✿❀✿❀✿❀✿❀✿❀✿❀"
@@ -181,15 +105,11 @@ kawaii() {
     "☾⋆⁺₊⋆☁︎⋆⁺₊⋆"
     "☽────✧˖°˖☆"
     "⋆꙳✧༚"
-    "✧༚˚. ᵎᵎ"
     "⋆｡˚ ☁︎ ˚｡⋆｡˚☽˚｡⋆"
   )
 
-  random_sep=$((RANDOM % ${#separators[@]}))
-  printf "\n%s\n\n" "${separators[$random_sep]}" | lolcat
-
-  # Frases motivacionales random
-  phases=(
+  # Random motivational phrases
+  phrases=(
     # Español
     "✨ Sigue brillando, dev girly ✨"
     "💖 Tu código también puede ser kawaii 💅"
@@ -237,13 +157,56 @@ kawaii() {
     "🌸 Codea happy, deploy fabulous 💎"
   )
 
-  # Elegir una frase random
-  random_index=$((RANDOM % ${#phases[@]}))
-  echo "${phases[$random_index]}" | lolcat
+  # Banner with your name in ASCII rainbow
+  figlet "${ZSH_USER_NAME}" | lolcat
+
+  # Random separator
+  random_sep=$((RANDOM % ${#separators[@]}))
+  printf "\n%s\n\n" "${separators[$random_sep]}" | lolcat
+
+  # Random phrase
+  random_index=$((RANDOM % ${#phrases[@]}))
+  echo "${phrases[$random_index]}" | lolcat
 }
 
+
+# ==============================================================================
+# 🌍 Environment Variables
+# ==============================================================================
+
+# NVM setup
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completionexport PATH=/Users/mlourdesgarcia/.meteor:$PATH
-export PATH=/Users/mlourdesgarcia/.meteor:$PATH
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"                     # Loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"   # Loads nvm bash_completion
+
+# Meteor path (added once)
+export PATH="/Users/${ZSH_USERNAME}/.meteor:$PATH"
+
+# No RubyGems PATH needed anymore since we switched to LSD
+
+# Run kawaii function on startup
 kawaii
+
+# ==============================================================================
+# 🎨 HOW TO CUSTOMIZE THIS CONFIGURATION 🎨
+# ==============================================================================
+#
+# To personalize this configuration for your own use:
+#
+# 1. Change the variables at the top of this file:
+#    - ZSH_USER_NAME: Your name (used in banners and messages)
+#    - ZSH_USERNAME: Your system username
+#    - ZSH_THEME_PATH: Your custom theme folder name
+#    - ZSH_THEME_NAME: Your theme file name
+#
+# 2. Customize the kawaii() function messages to match your personality
+# 3. Modify aliases and functions as needed
+# 4. Add or remove plugins based on your preferences
+#
+# Example:
+# export ZSH_USER_NAME="Alex"
+# export ZSH_USERNAME="alexdev"
+# export ZSH_THEME_PATH="myCustomTheme"
+# export ZSH_THEME_NAME="alexTheme"
+#
+# ==============================================================================
