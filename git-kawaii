@@ -40,12 +40,11 @@ do_merge() {
   rc=${rc:-0}
 
   if [[ $rc -eq 0 ]]; then
+    printf "%s\n" "$out" | boxes -d ansi -s "$width"
     if has lolcat; then
-      printf "%s\n" "$out" | boxes -d whirly -s "$width" | lolcat
-      printf "🌈 Merge successful — no conflicts! 🎉\n" | boxes -d whirly | lolcat
+      printf "✨ Merge successful — no conflicts! 🎉\n" | boxes -d whirly | lolcat
     else
-      printf "%s\n" "$out" | boxes -d whirly -s "$width"
-      printf "🌈 Merge successful — no conflicts! 🎉\n" | boxes -d whirly
+      printf "✨ Merge successful — no conflicts! 🎉\n" | boxes -d whirly
     fi
   else
     if grep -qi 'conflict' <<<"$out"; then
@@ -66,12 +65,11 @@ do_rebase() {
   rc=${rc:-0}
 
   if [[ $rc -eq 0 ]]; then
+    printf "%s\n" "$out" | boxes -d ansi -s "$width"
     if has lolcat; then
-      printf "%s\n" "$out" | boxes -d whirly -s "$width" | lolcat
-      printf "🌈 Rebase successful — no conflicts! 🎉\n" | boxes -d whirly | lolcat
+      printf "✨ Rebase successful — no conflicts! 🎉\n" | boxes -d whirly | lolcat
     else
-      printf "%s\n" "$out" | boxes -d whirly -s "$width"
-      printf "🌈 Rebase successful — no conflicts! 🎉\n" | boxes -d whirly
+      printf "✨ Rebase successful — no conflicts! 🎉\n" | boxes -d whirly
     fi
   else
     if grep -qi -e 'conflict' -e 'could not apply' <<<"$out"; then
@@ -123,6 +121,184 @@ do_status_pretty() {
   fi
 }
 
+# Pretty push: green box on success, red on error
+do_push() {
+  has git || { echo "git-kawaii: git not found" >&2; exit 127; }
+  has boxes || { echo "git-kawaii: boxes not found" >&2; exit 127; }
+  local width out rc; width="$(box_width)"
+
+  # Check if upstream is configured, if not, set it automatically
+  local current_branch upstream
+  current_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+  upstream="$(git rev-parse --abbrev-ref @{u} 2>/dev/null || echo '')"
+
+  if [[ -z "$upstream" ]]; then
+    # No upstream configured, set it automatically
+    out="$(git -c color.ui=always push -u origin "$current_branch" "$@" 2>&1)" || rc=$? || true
+  else
+    # Upstream exists, push normally
+    out="$(git -c color.ui=always push "$@" 2>&1)" || rc=$? || true
+  fi
+  rc=${rc:-0}
+
+  if [[ $rc -eq 0 ]]; then
+    # On success, show summary in green ANSI box (rainbow optional)
+    if has lolcat; then
+      printf "✅ Push successful\n\n%s\n" "$out" \
+        | boxes -d ansi -s "$width" \
+        | sed $'s/^/\x1b[32m/; s/$/\x1b[0m/' \
+        | lolcat
+    else
+      printf "✅ Push successful\n\n%s\n" "$out" \
+        | boxes -d ansi -s "$width" \
+        | sed $'s/^/\x1b[32m/; s/$/\x1b[0m/'
+    fi
+  else
+    # On error, show raw output in red ANSI box (don't hide details)
+    printf "%s\n" "$out" \
+      | boxes -d ansi -s "$width" \
+      | sed $'s/^/\x1b[31m/; s/$/\x1b[0m/'
+  fi
+  return "$rc"
+}
+
+# Pretty commit: run commit, then show --stat for HEAD in a box
+do_commit_pretty() {
+  has git || { echo "git-kawaii: git not found" >&2; exit 127; }
+  has boxes || { echo "git-kawaii: boxes not found" >&2; exit 127; }
+  git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
+    echo "Not a git repository." >&2; exit 128; }
+
+  local width out rc; width="$(box_width)"
+
+  # Run commit (this may open an editor if no -m is provided)
+  out="$(git -c color.ui=always commit "$@" 2>&1)" || rc=$? || true
+  rc=${rc:-0}
+
+  if [[ $rc -eq 0 ]]; then
+    # After a successful commit, show one-line + stat for HEAD
+    local stat
+    stat="$(git -c color.ui=always show --stat --pretty=format:'%C(bold)%h%Creset %s %C(dim)(%cr)%Creset%n' -1)"
+    if has lolcat; then
+      printf "✨ Commit created successfully ✨\n\n%s\n" "$stat" \
+        | boxes -d ansi -s "$width" | lolcat
+    else
+      printf "✨ Commit created successfully ✨\n\n%s\n" "$stat" \
+        | boxes -d ansi -s "$width"
+    fi
+  else
+    # Print the original commit output (errors, hooks, etc.)
+    printf "%s\n" "$out"
+  fi
+  return "$rc"
+}
+
+# Pretty commit with automatic -m: automatically adds -m flag
+do_commit_m() {
+  has git || { echo "git-kawaii: git not found" >&2; exit 127; }
+  has boxes || { echo "git-kawaii: boxes not found" >&2; exit 127; }
+  git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
+    echo "Not a git repository." >&2; exit 128; }
+
+  local width out rc; width="$(box_width)"
+
+  # Automatically add -m flag if not present
+  local args=()
+  local has_m=false
+  for arg in "$@"; do
+    if [[ "$arg" == "-m" ]]; then
+      has_m=true
+      args+=("$arg")
+    elif [[ "$arg" == "--message" ]]; then
+      has_m=true
+      args+=("$arg")
+    else
+      args+=("$arg")
+    fi
+  done
+
+  # If no -m flag found, add it with the first argument as message
+  if [[ "$has_m" == false && "$#" -gt 0 ]]; then
+    args=("-m" "${args[@]}")
+  fi
+
+  # Run commit with the modified arguments
+  out="$(git -c color.ui=always commit "${args[@]}" 2>&1)" || rc=$? || true
+  rc=${rc:-0}
+
+  if [[ $rc -eq 0 ]]; then
+    # After a successful commit, show one-line + stat for HEAD
+    local stat
+    stat="$(git -c color.ui=always show --stat --pretty=format:'%C(bold)%h%Creset %s %C(dim)(%cr)%Creset%n' -1)"
+    if has lolcat; then
+      printf "✨ Commit created successfully ✨\n\n%s\n" "$stat" \
+        | boxes -d ansi -s "$width" | lolcat
+    else
+      printf "✨ Commit created successfully ✨\n\n%s\n" "$stat" \
+        | boxes -d ansi -s "$width"
+    fi
+  else
+    # Print the original commit output (errors, hooks, etc.)
+    printf "%s\n" "$out"
+  fi
+  return "$rc"
+}
+
+# Pretty branches: current branch highlighted
+do_branches() {
+  has git || { echo "git-kawaii: git not found" >&2; exit 127; }
+  has boxes || { echo "git-kawaii: boxes not found" >&2; exit 127; }
+  local width; width="$(box_width)"
+
+  local branches out
+  out="$(git for-each-ref --format='%(refname:short)' refs/heads/ 2>/dev/null)" || return 1
+  [[ -z "$out" ]] && { echo "No branches found."; return 0; }
+
+  local current; current="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+  local lines=()
+  while IFS= read -r br; do
+    if [[ "$br" == "$current" ]]; then
+      lines+=("👉 \033[35m$br (current)\033[0m")
+    else
+      lines+=("   $br")
+    fi
+  done <<<"$out"
+
+  printf "%s\n" "${lines[@]}" | boxes -d ansi -s "$width"
+}
+
+# Pretty stash: handles push, list, pop/apply
+do_stash() {
+  has git || { echo "git-kawaii: git not found" >&2; exit 127; }
+  has boxes || { echo "git-kawaii: boxes not found" >&2; exit 127; }
+  local width; width="$(box_width)"
+
+  local subcmd="${1:-list}"
+  shift || true
+  case "$subcmd" in
+    push)
+      local out; out="$(git stash push "$@" 2>&1)" || return $?
+      printf "✨ Stash created ✨\n\n%s\n" "$out" | boxes -d ansi -s "$width"
+      ;;
+    list)
+      local out; out="$(git stash list 2>/dev/null)"
+      if [[ -z "$out" ]]; then
+        printf "No stashes ✨\n" | boxes -d ansi -s "$width"
+      else
+        printf "%s\n" "$out" | boxes -d ansi -s "$width"
+      fi
+      ;;
+    pop|apply)
+      local out; out="$(git stash "$subcmd" "$@" 2>&1)" || return $?
+      printf "🌸 Stash %s done 🌸\n\n%s\n" "$subcmd" "$out" | boxes -d ansi -s "$width"
+      ;;
+    *)
+      # Fallback: pass args directly
+      exec git stash "$subcmd" "$@"
+      ;;
+  esac
+}
+
 usage() {
   cat <<'EOF'
 git-kawaii (drop-in):
@@ -135,19 +311,22 @@ EOF
 
 cmd="${1:-}"; shift || true
 case "$cmd" in
-  # explicit kawaii commands
   kawaii-status) do_status_pretty "$@" ;;
   kawaii-merge)  do_merge "$@" ;;
   kawaii-rebase) do_rebase "$@" ;;
 
-  # treat plain 'status' and your git alias 's' as kawaii status ✨
   status|s)      do_status_pretty "$@" ;;
+  merge|mm)      do_merge "$@" ;;
+  rebase|rb)     do_rebase "$@" ;;
 
-  # help
-  ""|-h|--help|help)
-    usage ;;
+  # pretty push for 'push' or git aliases 'p' and 'ps'
+  push|p|ps)     do_push "$@" ;;
 
-  # everything else → behave exactly like git (aliases from .gitconfig work)
-  *)
-    exec git "$cmd" "$@" ;;
+  commit)        do_commit_pretty "$@" ;;
+  cm)            do_commit_m "$@" ;;
+  branches|b)    do_branches "$@" ;;
+  stash)         do_stash "$@" ;;
+
+  ""|-h|--help|help) usage ;;
+  *) exec git "$cmd" "$@" ;;
 esac
