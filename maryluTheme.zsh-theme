@@ -137,7 +137,7 @@ prompt_git() {
     local branch_name
     branch_name="${ref/refs\/heads\//}"
     if (( ${#branch_name} > 25 )); then
-      branch_name="${branch_name[1,25]}"
+      branch_name="${branch_name[1,22]}..."
     fi
 
     if [[ -n $(git status -s --ignore-submodules=dirty 2> /dev/null) ]]; then
