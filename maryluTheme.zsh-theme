@@ -26,8 +26,6 @@ FA_I_SPED="\uF0E4" #tachometer
 FA_I_OTBD="\uF08B" #sign-out
 FA_I_INBD="\uF090" #sign-in
 
-
-
 LEFT_CURRENT_BG='NONE'
 RIGHT_CURRENT_BG='NONE'
 
@@ -190,6 +188,18 @@ current_date() {
   right_prompt_segment 171 black " $FA_I_CALENDAR %D{%d/%m/%y} "
 }
 
+#Customized git status, oh-my-zsh currently does not allow render dirty status before branch
+git_custom_status() {
+  local cb=$(current_branch)
+  if [ -n "$cb" ]; then
+    echo "$(parse_git_dirty)$ZSH_THEME_GIT_PROMPT_PREFIX$(current_branch)$ZSH_THEME_GIT_PROMPT_SUFFIX"
+  fi
+}
+
+return_status() {
+  right_prompt_segment 235 white " %(?.%{$fg[green]%}✔.%{$fg[red]%}✘%f) "
+}
+
 left_build_prompt() {
   prompt_context
   prompt_dir
@@ -203,18 +213,6 @@ right_build_prompt() {
   current_date
   current_time
   right_prompt_end
-}
-
-#Customized git status, oh-my-zsh currently does not allow render dirty status before branch
-git_custom_status() {
-  local cb=$(current_branch)
-  if [ -n "$cb" ]; then
-    echo "$(parse_git_dirty)$ZSH_THEME_GIT_PROMPT_PREFIX$(current_branch)$ZSH_THEME_GIT_PROMPT_SUFFIX"
-  fi
-}
-
-return_status() {
-  right_prompt_segment 235 white " %(?.%{$fg[green]%}✔.%{$fg[red]%}✘%f) "
 }
 
 PROMPT='%{%f%b%k%}$(left_build_prompt) '
