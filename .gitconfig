@@ -1,0 +1,51 @@
+[alias]
+  alias = config --get-regexp ^alias\\.
+  ##########
+  s = status
+  ##########
+  cm = commit -m
+  ##########
+  mm = merge -m
+  ##########
+  rb = rebase
+  ##########
+  b = branch
+  ##########
+  chk = checkout
+  cb = checkout -b
+  ##########
+  ps = push
+  psf = push --force-with-lease
+  pso = push origin
+  psuo = push -u origin
+  pl = pull --ff-only
+  ##########
+  ## Base
+  lg   = log --pretty=format:'%h - %an, %ar : %s' --graph
+  ## Compact
+  lgc  = log --graph --pretty=format:'%C(199)%h%Creset %C(45)%d%Creset %C(white)%s%Creset %C(177)(%cr)%Creset %C(177)..%an..%Creset' --abbrev-commit --date=relative
+  lga  = log --graph --pretty=format:'%C(199)%h%Creset %C(45)%d%Creset %C(white)%s%Creset %C(177)(%cr)%Creset %C(177)..%an..%Creset' --abbrev-commit --date=relative --all
+  ## Detailed
+  lgd  = log --graph --pretty=format:'%C(199)%h%Creset %C(45)%d%Creset%n  %C(177)%s%Creset%n  %C(201)Author:%Creset %an, %ar%n  %C(51)Committer:%Creset %cn, %cr%n' --abbrev-commit --all
+  lgda = log --graph --pretty=format:'%C(199)%h%Creset %C(45)%d%Creset%n  %C(177)%s%Creset%n  %C(201)Author:%Creset %an, %ar%n  %C(51)Committer:%Creset %cn, %cr%n' --abbrev-commit --all
+  lgr  = "!git log --graph --pretty=format:'%C(199)%h%Creset %C(45)%d%Creset %C(white)%s%Creset %C(177)(%cr)%Creset %C(177)..%an..%Creset' --abbrev-commit --date=relative --all | lolcat"
+  ##
+  last = log -1 HEAD
+  ##########
+  # delete local branches that origin was deleted
+  gone = ! "git fetch -p && git for-each-ref --format '%(refname:short) %(upstream:track)' | awk '$2 == \"[gone]\" {print $1}' | xargs -r git branch -D"
+  ##########
+
+[color "status"]
+  added = green
+  changed = cyan
+  untracked = red
+[color "branch"]
+  current = bold magenta
+  local = normal
+  remote = bold cyan
+
+[fetch]
+  prune = true
+[log]
+  graphColors = 199,90,63,33,45,82,208,226,27,201
