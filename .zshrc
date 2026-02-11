@@ -8,9 +8,9 @@
 
 # Your personal information - CHANGE THESE!
 export ZSH_USER_NAME="MaryLu"                    # Your name (used in banners and messages)
-export ZSH_USERNAME="mlourdesgarcia"              # Your system username
+export ZSH_USERNAME="marylu"                     # Your system username
 export ZSH_THEME_PATH="zshMaryLuTheme"           # Your custom theme folder name
-export ZSH_THEME_NAME="maryluTheme"               # Your theme file name
+export ZSH_THEME_NAME="maryluTheme"              # Your theme file name
 
 # Path to your Oh My Zsh installation
 export ZSH="$HOME/.oh-my-zsh"
@@ -34,6 +34,7 @@ plugins=(
   web-search
   zsh-autosuggestions
   git-prompt
+  ssh-agent
   zsh-syntax-highlighting
 )
 
